@@ -4,7 +4,7 @@ import Home from './pages/Home'; // Import your new Home page
 import Dashboard from './pages/Dashboard';
 import Register from './pages/Register';
 import Login from './pages/Login';
-import PrivateRoute from './utils/PrivateRoute'; // Assuming you have a PrivateRoute wrapper
+import ProtectedRoute from './components/ProtectedRoute'; // Assuming you have a PrivateRoute wrapper
 
 function App() {
   return (
@@ -20,9 +20,9 @@ function App() {
           <Route 
             path="/dashboard" 
             element={
-              <PrivateRoute>
+              <ProtectedRoute>
                 <Dashboard />
-              </PrivateRoute>
+              </ProtectedRoute>
             } 
           />
         </Routes>

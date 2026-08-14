@@ -12,7 +12,7 @@ const ProtectedRoute = ({ children }) => {
 
     // If no user is found in the context, redirect to the login page
     if (!user) {
-        return <Navigate to="/login" replace />;
+        return user ? children : <Navigate to="/" />;
     }
 
     // If they are logged in, let them see the private dashboard
