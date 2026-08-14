@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import Home from './pages/Home'; // Import your new Home page
-import Dashboard from './pages/Dashboard';
-import Register from './pages/Register';
-import Login from './pages/Login';
+import Home from './components/Home'; // Import your new Home page
+import Dashboard from './components/Dashboard';
+import Register from './components/Register';
+import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute'; // Assuming you have a PrivateRoute wrapper
 
 function App() {
