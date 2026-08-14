@@ -6,10 +6,16 @@ const Dashboard = () => {
     const { user, logout } = useContext(AuthContext);
     const [movies, setMovies] = useState([]);
     const [newTitle, setNewTitle] = useState('');
-    const [activeTab, setActiveTab] = useState('To Watch'); // 'To Watch' or 'Watched'
-    const [typeFilter, setTypeFilter] = useState('All'); // 'All', 'Movie', or 'TV'
+    const [activeTab, setActiveTab] = useState('To Watch'); 
+    const [typeFilter, setTypeFilter] = useState('All'); 
     const [error, setError] = useState('');
+    
+    // --- NEW SEARCH STATES ---
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
 
+    // 1. Fetch initial watchlist on load
     useEffect(() => {
         const fetchMovies = async () => {
             try {
@@ -22,42 +28,68 @@ const Dashboard = () => {
         fetchMovies();
     }, []);
 
-    const handleAddMovie = async (e) => {
-        e.preventDefault();
-        try {
-            const tmdbRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${import.meta.env.VITE_TMDB_API_KEY}&query=${newTitle}`);
-            const tmdbData = await tmdbRes.json();
-            
-            const validResults = tmdbData.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
-
-            if (validResults.length === 0) {
-                setError('Movie or TV show not found on TMDB!');
+    // 2. Fetch TMDB suggestions dynamically as user types (Debounced)
+    useEffect(() => {
+        const fetchSuggestions = async () => {
+            if (newTitle.trim().length < 2) {
+                setSuggestions([]);
+                setShowSuggestions(false);
                 return;
             }
 
-            const topResult = validResults[0];
-            const isTv = topResult.media_type === 'tv';
+            setIsSearching(true);
+            try {
+                const tmdbRes = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${import.meta.env.VITE_TMDB_API_KEY}&query=${newTitle}`);
+                const tmdbData = await tmdbRes.json();
+                
+                // Filter out actors/people, keep only movies & tv, and grab the top 5
+                const validResults = tmdbData.results
+                    .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
+                    .slice(0, 5);
+                
+                setSuggestions(validResults);
+                setShowSuggestions(true);
+            } catch (err) {
+                console.error("TMDB Search Error:", err);
+            } finally {
+                setIsSearching(false);
+            }
+        };
 
+        // Wait 400ms after the user stops typing before fetching to save API calls
+        const delayDebounceFn = setTimeout(() => {
+            fetchSuggestions();
+        }, 400);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [newTitle]);
+
+    // 3. Add the explicitly clicked suggestion to the database
+    const handleSelectSuggestion = async (item) => {
+        const isTv = item.media_type === 'tv';
+        
+        try {
             const response = await api.post('media/', {
-                title: topResult.title || topResult.name,
+                title: item.title || item.name,
                 media_type: isTv ? 'TV' : 'Movie',
                 status: 'Unwatched',
-                tmdb_id: topResult.id,
-                poster_path: topResult.poster_path,
-                overview: topResult.overview,
-                release_date: topResult.release_date || topResult.first_air_date,
+                tmdb_id: item.id,
+                poster_path: item.poster_path,
+                overview: item.overview,
+                release_date: item.release_date || item.first_air_date,
                 rating: null
             });
             
-            setMovies([...movies, response.data]);
+            setMovies([response.data, ...movies]); // Add new item to the top of the list
             setNewTitle('');
+            setSuggestions([]);
+            setShowSuggestions(false);
             setError('');
         } catch {
             setError('Failed to add item.');
         }
     };
 
-    
     const handleDelete = async (id) => {
         try {
             await api.delete(`media/${id}/`);
@@ -102,8 +134,6 @@ const Dashboard = () => {
             <header style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(16px)', backgroundColor: 'rgba(0, 0, 0, 0.4)', position: 'sticky', top: 0, zIndex: 50, padding: '16px 32px' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h1 style={{ fontSize: '24px', fontWeight: 'bold', letterSpacing: '-0.025em' }}>Kiwi</h1>
-                    
-                    {/* Added user display next to the button */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         {user && (
                             <span style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500' }}>
@@ -123,19 +153,57 @@ const Dashboard = () => {
             <main style={{ maxWidth: '1200px', margin: '40px auto 0', padding: '0 24px' }}>
                 {error && <div style={{ marginBottom: '24px', padding: '16px', borderRadius: '12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#f87171', fontSize: '14px' }}>{error}</div>}
 
-                <form onSubmit={handleAddMovie} style={{ display: 'flex', gap: '12px', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
+                {/* --- NEW SEARCH BAR WITH DROPDOWN --- */}
+                <div style={{ position: 'relative', maxWidth: '600px', margin: '0 auto 32px', zIndex: 40 }}>
                     <input 
                         type="text" 
                         value={newTitle} 
                         onChange={(e) => setNewTitle(e.target.value)} 
                         placeholder="Search for a movie or TV show..." 
-                        style={{ width: '100%', backgroundColor: '#18181b', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '16px 20px', color: 'white', outline: 'none', fontSize: '16px' }}
-                        required
+                        style={{ width: '100%', backgroundColor: '#18181b', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', padding: '16px 20px', color: 'white', outline: 'none', fontSize: '16px', boxSizing: 'border-box' }}
                     />
-                    <button type="submit" style={{ backgroundColor: '#2563eb', color: 'white', padding: '0 32px', borderRadius: '16px', fontWeight: '500', border: 'none', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.3)' }}>
-                        Search & Add
-                    </button>
-                </form>
+                    
+                    {/* Loading Indicator inside the input */}
+                    {isSearching && (
+                        <div style={{ position: 'absolute', right: '20px', top: '18px', color: '#9ca3af', fontSize: '14px' }}>Searching...</div>
+                    )}
+
+                    {/* Auto-Suggest Dropdown */}
+                    {showSuggestions && (
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: '#18181b', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '16px', marginTop: '8px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)' }}>
+                            {suggestions.length === 0 && newTitle.trim().length >= 2 ? (
+                                <div style={{ padding: '16px', color: '#9ca3af', textAlign: 'center' }}>No results found</div>
+                            ) : (
+                                suggestions.map((item) => (
+                                    <div 
+                                        key={item.id}
+                                        onClick={() => handleSelectSuggestion(item)}
+                                        style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', backgroundColor: 'transparent' }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    >
+                                        {/* Dropdown Poster */}
+                                        {item.poster_path ? (
+                                            <img src={`https://image.tmdb.org/t/p/w92${item.poster_path}`} alt={item.title || item.name} style={{ width: '40px', height: '60px', objectFit: 'cover', borderRadius: '6px' }} />
+                                        ) : (
+                                            <div style={{ width: '40px', height: '60px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>N/A</div>
+                                        )}
+                                        
+                                        {/* Dropdown Details */}
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ fontWeight: '600', fontSize: '15px' }}>{item.title || item.name}</div>
+                                            <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
+                                                <span style={{ textTransform: 'capitalize' }}>{item.media_type}</span>
+                                                <span>•</span>
+                                                <span>{(item.release_date || item.first_air_date || 'Unknown').substring(0, 4)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
+                </div>
 
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '20px' }}>
                     {['To Watch', 'Watched'].map((tab) => (
@@ -186,7 +254,7 @@ const Dashboard = () => {
                     {filteredMovies.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '80px 0', color: 'rgba(255, 255, 255, 0.4)' }}>
                             <p style={{ fontSize: '18px', fontWeight: '500' }}>No items found</p>
-                            <p style={{ fontSize: '14px', marginTop: '4px' }}>Try changing your filters or adding a new title above.</p>
+                            <p style={{ fontSize: '14px', marginTop: '4px' }}>Try changing your filters or searching a new title above.</p>
                         </div>
                     ) : (
                         filteredMovies.map((movie) => (
@@ -219,7 +287,6 @@ const Dashboard = () => {
                                                 {movie.status || 'Unwatched'}
                                             </span>
 
-                                            {/* Rating Section - Always visible when movie.status === 'Watched' */}
                                             {movie.status === 'Watched' && (
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '4px' }}>
                                                     {movie.rating && (
