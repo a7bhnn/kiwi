@@ -18,7 +18,11 @@ const Home = () => {
                 <h1 style={{ fontSize: '24px', fontWeight: 'bold', letterSpacing: '-0.025em', margin: 0 }}>Kiwi</h1>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                     <Link to="/login" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>Sign In</Link>
-                    <Link to="/register" style={{ backgroundColor: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '9999px', textDecoration: 'none', fontSize: '14px', fontWeight: '500', boxShadow: '0 4px 6px -1px rgba(37, 99, 235, 0.2)' }}>Get Started</Link>
+    
+                    {/* Ensure this is a Link component pointing to /register */}
+                    <Link to="/register" style={{ backgroundColor: '#2563eb', color: 'white', padding: '8px 16px', borderRadius: '9999px', textDecoration: 'none', fontSize: '14px', fontWeight: '500', display: 'inline-block' }}>
+                        Get Started
+                    </Link>
                 </div>
             </header>
 
