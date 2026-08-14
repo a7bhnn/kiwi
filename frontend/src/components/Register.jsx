@@ -14,11 +14,20 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
+            // 1. Tell Django to create the user
             await api.post('register/', { username, password });
+            
+            // 2. Pause for 500 milliseconds to let the database finish saving
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // 3. Authenticate the new user
             await login(username, password);
+            
+            // 4. Redirect to the dashboard
             navigate('/');
         } catch (err) {
-            console.error("Full error details:", err); // <-- Add this line
+            // Log the exact error to your console so we can see it if it fails again
+            console.error("Full Error:", err.response?.data || err);
             setError('Registration failed. Username might already be taken.');
         }
     };
