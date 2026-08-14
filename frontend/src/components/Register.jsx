@@ -24,7 +24,7 @@ const Register = () => {
             await login(username, password);
             
             // 4. Redirect to the dashboard
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             // Log the exact error to your console so we can see it if it fails again
             console.error("Full Error:", err.response?.data || err);

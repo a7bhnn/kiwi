@@ -14,7 +14,7 @@ const Login = () => {
         e.preventDefault();
         try {
             await login(username, password);
-            navigate('/');
+            navigate('/dashboard');
         } catch {
             setError('Invalid username or password.');
         }

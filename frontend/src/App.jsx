@@ -1,36 +1,33 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import Login from './components/Login';
-import Register from './components/Register'; // <-- Import Register
-import Dashboard from './components/Dashboard';
-import ProtectedRoute from "./components/ProtectedRoute";
+import Home from './pages/Home'; // Import your new Home page
+import Dashboard from './pages/Dashboard';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import PrivateRoute from './utils/PrivateRoute'; // Assuming you have a PrivateRoute wrapper
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} /> {/* <-- Add Route */}
+
+          {/* Protected Routes */}
           <Route 
-            path="/" 
+            path="/dashboard" 
             element={
-              <ProtectedRoute>
+              <PrivateRoute>
                 <Dashboard />
-              </ProtectedRoute>
+              </PrivateRoute>
             } 
           />
-          <Route 
-  path="/dashboard" 
-  element={
-    <ProtectedRoute>
-      <Dashboard />
-    </ProtectedRoute>
-  } 
-/>
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
