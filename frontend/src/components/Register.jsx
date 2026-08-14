@@ -23,7 +23,7 @@ const Register = () => {
             navigate('/dashboard');
         } catch (err) {
             console.error("Full Error:", err.response?.data || err);
-            setError('Registration failed. Username might already be taken.');
+            setError('Registration failed. Username might already be taken. Use 8 or more characters.');
             setLoading(false); // 3. Turn loading off if it fails
         }
     };
