@@ -7,8 +7,9 @@ const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const { login } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    const { login } = useContext(AuthContext);
 
     const handleRegister = async (e) => {
         e.preventDefault();
