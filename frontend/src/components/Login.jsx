@@ -24,7 +24,7 @@ const Login = () => {
             navigate('/dashboard');
         } catch (err) {
             console.error("Login Error:", err.response?.data || err);
-            setError('Invalid username or password.');
+            setError('Invalid username or password. Use 8 or more characters.');
             setLoading(false); // 3. Turn loading off if it fails
         }
     };
