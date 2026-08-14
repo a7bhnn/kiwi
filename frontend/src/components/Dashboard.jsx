@@ -3,7 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
 
 const Dashboard = () => {
-    const { logout } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
     const [movies, setMovies] = useState([]);
     const [newTitle, setNewTitle] = useState('');
     const [activeTab, setActiveTab] = useState('To Watch'); // 'To Watch' or 'Watched'
@@ -57,6 +57,7 @@ const Dashboard = () => {
         }
     };
 
+    
     const handleDelete = async (id) => {
         try {
             await api.delete(`media/${id}/`);
@@ -101,12 +102,21 @@ const Dashboard = () => {
             <header style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(16px)', backgroundColor: 'rgba(0, 0, 0, 0.4)', position: 'sticky', top: 0, zIndex: 50, padding: '16px 32px' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h1 style={{ fontSize: '24px', fontWeight: 'bold', letterSpacing: '-0.025em' }}>Kiwi</h1>
-                    <button 
-                        onClick={logout} 
-                        style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'rgba(255, 255, 255, 0.9)', padding: '8px 16px', borderRadius: '9999px', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}
-                    >
-                        Sign Out
-                    </button>
+                    
+                    {/* Added user display next to the button */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        {user && (
+                            <span style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500' }}>
+                                Welcome, {user.username}!
+                            </span>
+                        )}
+                        <button 
+                            onClick={logout} 
+                            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.1)', color: 'rgba(255, 255, 255, 0.9)', padding: '8px 16px', borderRadius: '9999px', fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}
+                        >
+                            Sign Out
+                        </button>
+                    </div>
                 </div>
             </header>
 
