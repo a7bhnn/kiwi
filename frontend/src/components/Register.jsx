@@ -7,28 +7,24 @@ const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // 1. Loading state
     const navigate = useNavigate();
-
     const { login } = useContext(AuthContext);
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        setError('');
+        setLoading(true); // 2. Turn loading on
+
         try {
-            // 1. Tell Django to create the user
             await api.post('register/', { username, password });
-            
-            // 2. Pause for 500 milliseconds to let the database finish saving
             await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // 3. Authenticate the new user
             await login(username, password);
-            
-            // 4. Redirect to the dashboard
             navigate('/dashboard');
         } catch (err) {
-            // Log the exact error to your console so we can see it if it fails again
             console.error("Full Error:", err.response?.data || err);
             setError('Registration failed. Username might already be taken.');
+            setLoading(false); // 3. Turn loading off if it fails
         }
     };
 
@@ -61,8 +57,39 @@ const Register = () => {
                             required 
                         />
                     </div>
-                    <button type="submit" style={{ width: '100%', backgroundColor: '#2563eb', color: 'white', fontWeight: '600', padding: '12px', borderRadius: '12px', border: 'none', cursor: 'pointer', marginTop: '8px', boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.3)' }}>
-                        Sign Up & Log In
+                    
+                    <button 
+                        type="submit" 
+                        disabled={loading}
+                        style={{ 
+                            width: '100%', 
+                            backgroundColor: loading ? '#1d4ed8' : '#2563eb', 
+                            color: 'white', 
+                            fontWeight: '600', 
+                            padding: '12px', 
+                            borderRadius: '12px', 
+                            border: 'none', 
+                            cursor: loading ? 'not-allowed' : 'pointer', 
+                            marginTop: '8px', 
+                            opacity: loading ? 0.7 : 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.3)' 
+                        }}
+                    >
+                        {loading && (
+                            <span style={{
+                                width: '16px',
+                                height: '16px',
+                                border: '2px solid white',
+                                borderTopColor: 'transparent',
+                                borderRadius: '50%',
+                                animation: 'spin 0.8s linear infinite'
+                            }} />
+                        )}
+                        {loading ? 'Creating Account...' : 'Sign Up & Log In'}
                     </button>
                 </form>
 
@@ -70,6 +97,12 @@ const Register = () => {
                     Already have an account? <Link to="/login" style={{ color: '#60a5fa', textDecoration: 'underline' }}>Sign in</Link>
                 </p>
             </div>
+
+            <style>{`
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            `}</style>
         </div>
     );
 };
