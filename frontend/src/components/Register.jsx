@@ -17,7 +17,8 @@ const Register = () => {
             await api.post('register/', { username, password });
             await login(username, password);
             navigate('/');
-        } catch {
+        } catch (err) {
+            console.error("Full error details:", err); // <-- Add this line
             setError('Registration failed. Username might already be taken.');
         }
     };
