@@ -3,9 +3,12 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from watchlist import views  # <-- Import your watchlist views
 from watchlist.views import RegisterView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     
