@@ -128,7 +128,7 @@ MAILERS = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = [ "https://kiwi-frontend-nu.vercel.app" ]
+CORS_ALLOWED_ORIGINS = [ "https://kiwi-films.vercel.app" ]
 # Django REST Framework Settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
