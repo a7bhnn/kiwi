@@ -1,51 +1,18 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/',
+    baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/',
 });
 
-// Request Interceptor: Automatically attach the Access Token to every request
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('access');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
-
-// Response Interceptor: Catch 401s and automatically refresh the token
-api.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
-
-        if (error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            try {
-                const refreshToken = localStorage.getItem('refresh');
-                const response = await axios.post('http://127.0.0.1:8000/api/token/refresh/', {
-                    refresh: refreshToken,
-                });
-                
-                // Save the new access token
-                localStorage.setItem('access', response.data.access);
-                
-                // Retry the original failed request with the new token
-                originalRequest.headers.Authorization = `Bearer ${response.data.access}`;
-                return api(originalRequest);
-            } catch (refreshError) {
-                console.error("Failed to refresh token:", refreshError);
-                // If the refresh token is also expired, clear everything and force log out
-                localStorage.removeItem('access');
-                localStorage.removeItem('refresh');
-                window.location.href = '/login';
-            }
-        }
-        return Promise.reject(error);
+// Automatically inject JWT token if available
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('access');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
-);
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
 
 export default api;
