@@ -260,9 +260,9 @@ const Dashboard = () => {
                         filteredMovies.map((movie) => (
                             <div 
                                 key={movie.id} 
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(12px)' }}
+                                style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(12px)' }}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: '1 1 250px' }}>
                                     {movie.poster_path ? (
                                         <img 
                                             src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`} 
@@ -274,7 +274,7 @@ const Dashboard = () => {
                                     )}
 
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        <h3 style={{ fontSize: '18px', fontWeight: '600', letterSpacing: '-0.025em', margin: 0, color: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.4)' : 'white', textDecoration: movie.status === 'Watched' ? 'line-through' : 'none' }}>
+                                        <h3 style={{ fontSize: '18px', fontWeight: '600', letterSpacing: '-0.025em', margin: 0, color: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.4)' : 'white', textDecoration: movie.status === 'Watched' ? 'line-through' : 'none', wordBreak: 'break-word' }}>
                                             {movie.title} <span style={{ fontWeight: 'normal', color: 'rgba(255, 255, 255, 0.4)', fontSize: '14px' }}>{movie.release_date && `(${movie.release_date.substring(0,4)})`}</span>
                                         </h3>
                                         
@@ -310,10 +310,10 @@ const Dashboard = () => {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: '1 1 auto', justifyContent: 'flex-start' }}>
                                     <button 
                                         onClick={() => handleToggleStatus(movie)}
-                                        style={{ padding: '8px 16px', borderRadius: '12px', fontSize: '12px', fontWeight: '500', cursor: 'pointer', border: '1px solid', backgroundColor: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(16, 185, 129, 0.2)', color: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.7)' : '#34d399', borderColor: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(16, 185, 129, 0.3)' }}
+                                        style={{ padding: '8px 16px', borderRadius: '12px', fontSize: '12px', fontWeight: '500', cursor: 'pointer', border: '1px solid', backgroundColor: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(16, 185, 129, 0.2)', color: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.7)' : '#34d399', borderColor: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(16, 185, 129, 0.3)', whiteSpace: 'nowrap' }}
                                     >
                                         {movie.status === 'Watched' ? 'Mark Unwatched' : 'Watched'}
                                     </button>
