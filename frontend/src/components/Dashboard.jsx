@@ -274,7 +274,8 @@ const Dashboard = () => {
                                     )}
 
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                        <h3 style={{ fontSize: '18px', fontWeight: '600', letterSpacing: '-0.025em', margin: 0, color: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.4)' : 'white', textDecoration: movie.status === 'Watched' ? 'line-through' : 'none', wordBreak: 'break-word' }}>
+                                        {/* The textDecoration style has been removed here */}
+                                        <h3 style={{ fontSize: '18px', fontWeight: '600', letterSpacing: '-0.025em', margin: 0, color: movie.status === 'Watched' ? 'rgba(255, 255, 255, 0.4)' : 'white', wordBreak: 'break-word' }}>
                                             {movie.title} <span style={{ fontWeight: 'normal', color: 'rgba(255, 255, 255, 0.4)', fontSize: '14px' }}>{movie.release_date && `(${movie.release_date.substring(0,4)})`}</span>
                                         </h3>
                                         
