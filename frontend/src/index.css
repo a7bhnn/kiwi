@@ -56,16 +56,17 @@
   }
 }
 
-html, body, #root {
-  margin: 0 !important;
-  padding: 0 !important;
-  background-color: #111111 !important; 
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #111111;
   color: white;
-  width: 100% !important;
-  overflow-x: hidden !important;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 #root {
+  width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
